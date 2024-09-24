@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  app:
+    container_name: lis
+    build: .
+    env_file:
+      - .env
+    networks:
+      - gol_bridge
+    ports:
+      - 8080:8080
+    volumes:
+      - ./:/usr/src/app
+    restart: always
+  db:
+    image: postgres:alpine
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+      - POSTGRES_PORT=${DB_PORT}
+      - POSTGRES_HOST=${DB_HOST}
+    networks:
+      - gol_bridge
+    ports:
+      - ${DB_PORT}:${DB_PORT}
+    volumes:
+      - postgres-db:/root/lib/data
+    command: -p ${DB_PORT}
+    hostname: ${DB_HOST}
+
+volumes:
+  postgres-db:
+
+networks:
+  gol_bridge:
+    driver: bridge
