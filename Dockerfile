@@ -7,7 +7,7 @@ ADD . /app
 WORKDIR /app
 RUN go clean --modcache
 RUN go mod download
-RUN CGO_ENABLED=0 GOOS=linux go build app/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build cmd/main.go
 EXPOSE 8080
 CMD ["/app/main"]
 
