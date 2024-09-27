@@ -3,7 +3,6 @@ package config
 import (
 	"fmt"
 	"log"
-	"os"
 
 	"github.com/thiccpan/library_information_system/internal/entity"
 	"gorm.io/driver/postgres"
@@ -11,14 +10,22 @@ import (
 	"gorm.io/gorm/clause"
 )
 
-func SetupDB() *gorm.DB {
+type DBConfig struct {
+	Host     string
+	Username string
+	Password string
+	Name     string
+	Port     string
+}
+
+func SetupDB(conf DBConfig) *gorm.DB {
 	dsn := fmt.Sprintf(
 		"host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=Asia/Shanghai",
-		os.Getenv("DB_HOST"),
-		os.Getenv("DB_USERNAME"),
-		os.Getenv("DB_PASSWORD"),
-		os.Getenv("DB_NAME"),
-		os.Getenv("DB_PORT"),
+		conf.Host,
+		conf.Username,
+		conf.Password,
+		conf.Name,
+		conf.Port,
 	)
 	log.Println(dsn)
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
