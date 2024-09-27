@@ -1,6 +1,12 @@
 package entity
 
+type statusType string
+var (
+	BORROWED statusType = "BORROWED"
+	RETURNED statusType = "RETURNED"
+)
+
 type LoanStatus struct {
 	Id uint `gorm:"primaryKey"`
-	Status string `gorm:"not null;type:varchar(10)"`
+	Status statusType `gorm:"not null;type:varchar(10)"`
 }
