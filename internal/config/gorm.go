@@ -8,6 +8,7 @@ import (
 	"github.com/thiccpan/library_information_system/internal/entity"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 func SetupDB() *gorm.DB {
@@ -25,16 +26,42 @@ func SetupDB() *gorm.DB {
 		log.Fatal("error connecting to db")
 	}
 	dbAutoMigrate(db)
+	runSeeding(db)
 	return db
 }
 
 func dbAutoMigrate(db *gorm.DB) *gorm.DB {
-	err := db.AutoMigrate(
-		&entity.User{},
-		&entity.Role{},
-	)
+	err := db.AutoMigrate(&entity.Role{}, &entity.User{})
 	if err != nil {
-		log.Fatal("migration error")
+		log.Fatal("migration error", err)
 	}
+
+	err = db.AutoMigrate(&entity.Author{}, &entity.Topic{})
+	if err != nil {
+		log.Fatal("migration error", err)
+	}
+
+	err = db.AutoMigrate(&entity.Book{}, &entity.LoanStatus{})
+	if err != nil {
+		log.Fatal("migration error", err)
+	}
+
+	err = db.AutoMigrate(&entity.Loan{})
+	if err != nil {
+		log.Fatal("migration error", err)
+	}
+
+	return db
+}
+
+func runSeeding(db *gorm.DB) *gorm.DB {
+	statusMigrationData := []*entity.LoanStatus{
+		{Id: 1, Status: entity.BORROWED},
+		{Id: 2, Status: entity.RETURNED},
+	}
+	db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		DoUpdates: clause.AssignmentColumns([]string{"status"}),
+	}).Create(statusMigrationData)
 	return db
 }
