@@ -28,7 +28,9 @@ func SetupDB(conf DBConfig) *gorm.DB {
 		conf.Port,
 	)
 	log.Println(dsn)
-	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
+		TranslateError: true,
+	})
 	if err != nil {
 		log.Fatal("error connecting to db")
 	}
@@ -62,6 +64,7 @@ func dbAutoMigrate(db *gorm.DB) *gorm.DB {
 }
 
 func runSeeding(db *gorm.DB) *gorm.DB {
+	// migrate loan status
 	statusMigrationData := []*entity.LoanStatus{
 		{Id: 1, Status: entity.BORROWED},
 		{Id: 2, Status: entity.RETURNED},
@@ -70,5 +73,15 @@ func runSeeding(db *gorm.DB) *gorm.DB {
 		Columns:   []clause.Column{{Name: "id"}},
 		DoUpdates: clause.AssignmentColumns([]string{"status"}),
 	}).Create(statusMigrationData)
+
+	// migrate user role
+	roleMigrationData := []*entity.Role{
+		entity.USER,
+		entity.ADMIN,
+	}
+	db.Clauses(clause.OnConflict{
+		Columns:   []clause.Column{{Name: "id"}},
+		DoUpdates: clause.AssignmentColumns([]string{"name"}),
+	}).Create(roleMigrationData)
 	return db
 }
