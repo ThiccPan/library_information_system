@@ -10,6 +10,7 @@ type AppConfig struct {
 	App              *echo.Echo
 	UserController   *controller.UserController
 	AuthorController *controller.AuthorController
+	TopicController *controller.TopicController
 }
 
 func (e *AppConfig) SetupRoute() {
@@ -36,4 +37,11 @@ func (e *AppConfig) SetupRoute() {
 	authorRoute.GET("/:id", e.AuthorController.GetById)
 	authorRoute.POST("/:id", e.AuthorController.Update)
 	authorRoute.DELETE("/:id", e.AuthorController.Delete)
+
+	topicRoute := route.Group("/topics")
+	topicRoute.POST("", e.TopicController.Create)
+	topicRoute.GET("", e.TopicController.Get)
+	topicRoute.GET("/:id", e.TopicController.GetById)
+	topicRoute.POST("/:id", e.TopicController.Update)
+	topicRoute.DELETE("/:id", e.TopicController.Delete)
 }
