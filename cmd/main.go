@@ -5,6 +5,10 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/thiccpan/library_information_system/internal/config"
+	"github.com/thiccpan/library_information_system/internal/delivery/http"
+	"github.com/thiccpan/library_information_system/internal/delivery/http/controller"
+	"github.com/thiccpan/library_information_system/internal/repository"
+	"github.com/thiccpan/library_information_system/internal/usecase"
 )
 
 func main() {
@@ -16,9 +20,16 @@ func main() {
 		Name:     os.Getenv("DB_NAME"),
 		Port:     os.Getenv("DB_PORT"),
 	})
-	config.SetupApp(config.BootstrapConfig{
-		App: app,
-		DB:  db,
-	})
+
+	userRepository := repository.NewUserRepoImpl(db)
+	userUsecase := usecase.NewUserUsecase(db, userRepository)
+	userController := controller.NewUserController(userUsecase, config.NewValidator(), config.NewAuthJWT(os.Getenv("JWT_SECRET")))
+
+	routerConfig := http.AppConfig{
+		App:            app,
+		UserController: userController,
+	}
+	routerConfig.SetupRoute()
+
 	app.Logger.Fatal(app.Start(":8080"))
 }
