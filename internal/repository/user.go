@@ -17,7 +17,7 @@ func NewUserRepoImpl(db *gorm.DB) *UserRepository {
 
 func (u *UserRepository) GetAll(db *gorm.DB) ([]entity.User, error) {
 	var users []entity.User
-	tx := db.Find(&users)
+	tx := db.Omit("password").Find(&users)
 	if err := tx.Error; err != nil {
 		return users, err
 	}

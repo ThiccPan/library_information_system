@@ -62,6 +62,53 @@ func (uu *UserUsecase) Register(ctx context.Context, request *model.RegisterUser
 	return model.UserToResponse(user), nil
 }
 
-func (uu *UserUsecase) Login() {}
+func (uu *UserUsecase) Login(ctx context.Context, request *model.LoginUserRequest) (*model.UserResponse, error) {
+	tx := uu.Db.WithContext(ctx).Begin()
+	if r := recover(); r != nil {
+		slog.Info("err exit", r)
+		tx.Rollback()
+	}
 
-func (uu *UserUsecase) ShowAllUsers() {}
+	user := &entity.User{
+		Email:    request.Email,
+		Password: request.Password,
+	}
+
+	if err := uu.Repository.GetByEmail(tx, user); err != nil {
+		tx.Rollback()
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			error_val := errors.New("user not found in record")
+			slog.Error("user not found in record", "error", err.Error())
+			return &model.UserResponse{Status: http.StatusBadRequest, Error: error_val}, error_val
+		}
+		slog.Error("failed to find user", "error", err.Error())
+		return &model.UserResponse{Status: http.StatusInternalServerError, Error: err}, err
+	}
+
+	if user.Password != request.Password {
+		error_val := errors.New("invalid credentials")
+		slog.Error("invalid credentials")
+		return &model.UserResponse{Status: http.StatusUnauthorized, Error: error_val}, error_val
+	}
+
+	// commit transaction
+	if err := tx.Commit().Error; err != nil {
+		slog.Error("failed to create new user", "error", err.Error())
+		return nil, err
+	}
+
+	return model.UserToResponse(user), nil
+}
+
+func (uu *UserUsecase) ShowAllUsers(ctx context.Context) (*model.UsersResponse, error) {
+	users, err := uu.Repository.GetAll(uu.Db)
+	if err != nil {
+		slog.Error("failed to get users", "error", err.Error())
+		return &model.UsersResponse{Status: http.StatusInternalServerError, Error: err}, err
+	}
+	return &model.UsersResponse{
+		Status: http.StatusInternalServerError,
+		Error:  nil,
+		Users: users,
+	}, nil
+}

@@ -8,11 +8,17 @@ type JWT struct {
 type UserResponse struct {
 	Status     int    `json:"status_code"`
 	Error      error  `json:"error"`
-	Id         any    `json:"id"`
+	Id         uint   `json:"id"`
 	Email      string `json:"email"`
 	Name       string `json:"name"`
 	ProfileImg string `json:"profile_img"`
 	Token      string `json:"token"`
+}
+
+type UsersResponse struct {
+	Status int   `json:"status_code"`
+	Error  error `json:"error"`
+	Users  []entity.User
 }
 
 func UserToResponse(user *entity.User) *UserResponse {
