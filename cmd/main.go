@@ -25,9 +25,14 @@ func main() {
 	userUsecase := usecase.NewUserUsecase(db, userRepository)
 	userController := controller.NewUserController(userUsecase, config.NewValidator(), config.NewAuthJWT(os.Getenv("JWT_SECRET")))
 
+	authorRepository := repository.NewAuthorRepoImpl(db)
+	authorUsecase := usecase.NewAuthorUsecase(db, authorRepository)
+	authorController := controller.NewAuthorController(authorUsecase)
+
 	routerConfig := http.AppConfig{
 		App:            app,
 		UserController: userController,
+		AuthorController: authorController,
 	}
 	routerConfig.SetupRoute()
 

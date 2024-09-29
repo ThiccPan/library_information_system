@@ -7,8 +7,9 @@ import (
 )
 
 type AppConfig struct {
-	App            *echo.Echo
-	UserController *controller.UserController
+	App              *echo.Echo
+	UserController   *controller.UserController
+	AuthorController *controller.AuthorController
 }
 
 func (e *AppConfig) SetupRoute() {
@@ -29,4 +30,10 @@ func (e *AppConfig) SetupRoute() {
 	myRoute.POST("/profile", e.UserController.UpdateProfileController)
 	route.Static("/pictures/profiles", "resource/user_profile")
 
+	authorRoute := route.Group("/authors")
+	authorRoute.POST("", e.AuthorController.Create)
+	authorRoute.GET("", e.AuthorController.Get)
+	authorRoute.GET("/:id", e.AuthorController.GetById)
+	authorRoute.POST("/:id", e.AuthorController.Update)
+	authorRoute.DELETE("/:id", e.AuthorController.Delete)
 }
