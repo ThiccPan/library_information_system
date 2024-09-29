@@ -1,6 +1,10 @@
 package model
 
-import "github.com/thiccpan/library_information_system/internal/entity"
+import (
+	"mime/multipart"
+
+	"github.com/thiccpan/library_information_system/internal/entity"
+)
 
 type JWT struct {
 }
@@ -37,10 +41,11 @@ type RegisterUserRequest struct {
 }
 
 type UpdateUserRequest struct {
-	Id       string `json:"-" validate:"required,max=100"`
-	Email    string `json:"email" validate:"email,omitempty"`
+	Id       uint `json:"-" validate:"required,max=100"`
+	Email    string `json:"email,omitempty" validate:"omitempty,email"`
 	Password string `json:"password,omitempty" validate:"max=100"`
 	Name     string `json:"name,omitempty" validate:"max=100"`
+	Profile  *multipart.FileHeader `json:"-" validate:""`
 }
 
 type LoginUserRequest struct {

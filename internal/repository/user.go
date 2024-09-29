@@ -25,7 +25,12 @@ func (u *UserRepository) GetAll(db *gorm.DB) ([]entity.User, error) {
 }
 
 func (u *UserRepository) GetByEmail(db *gorm.DB, user *entity.User) error {
-	tx := db.Find(&user, "email = ?", user.Email)
+	tx := db.First(&user, "email = ?", user.Email)
+	return tx.Error
+}
+
+func (u *UserRepository) GetById(db *gorm.DB, user *entity.User) error {
+	tx := db.First(&user)
 	return tx.Error
 }
 

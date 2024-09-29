@@ -19,6 +19,14 @@ func (e *AppConfig) SetupRoute() {
 	route.POST("/register", e.UserController.RegisterController)
 	route.POST("/login", e.UserController.LoginController)
 
-	rRoute := route.Group("/users", middleware.JWTUser())
+	rRoute := route.Group("/users", middleware.JWTUser(), middleware.CheckAdmin())
 	rRoute.GET("", e.UserController.GetAllController)
+	rRoute.GET("/:id", e.UserController.GetByIdController)
+
+	myRoute := route.Group("/my", middleware.JWTUser())
+	myRoute.GET("", e.UserController.GetProfileController)
+	myRoute.POST("", e.UserController.UpdateController)
+	myRoute.POST("/profile", e.UserController.UpdateProfileController)
+	route.Static("/pictures/profiles", "resource/user_profile")
+
 }

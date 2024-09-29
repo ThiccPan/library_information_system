@@ -3,6 +3,7 @@ package controller
 import (
 	"log/slog"
 	"net/http"
+	"strconv"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
@@ -21,7 +22,7 @@ func NewUserController(u *usecase.UserUsecase, validator *validator.Validate, jw
 	return &UserController{
 		usecase:   u,
 		validator: validator,
-		jwt: jwt,
+		jwt:       jwt,
 	}
 }
 
@@ -104,6 +105,99 @@ func (uc *UserController) GetAllController(c echo.Context) error {
 	}
 	return c.JSON(http.StatusOK, map[string]any{
 		"message": "successfully fetch users",
+		"data":    res,
+	})
+}
+
+func (uc *UserController) GetProfileController(c echo.Context) error {
+	id := c.Get("user").(*config.JwtCustomClaims).Id
+
+	res, err := uc.usecase.GetById(c.Request().Context(), uint(id))
+	if err != nil {
+		return c.JSON(res.Status, map[string]any{
+			"message": "failed to login user",
+			"error":   err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "successfully fetch users",
+		"data":    res,
+	})
+}
+
+func (uc *UserController) GetByIdController(c echo.Context) error {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "failed to get user by id",
+			"error":   err.Error(),
+		})
+	}
+
+	res, err := uc.usecase.GetById(c.Request().Context(), uint(id))
+	if err != nil {
+		return c.JSON(res.Status, map[string]any{
+			"message": "failed to login user",
+			"error":   err.Error(),
+		})
+	}
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "successfully fetch users",
+		"data":    res,
+	})
+}
+
+func (uc *UserController) UpdateController(c echo.Context) error {
+	request := &model.UpdateUserRequest{}
+	id := c.Get("user").(*config.JwtCustomClaims).Id
+	if err := c.Bind(request); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "failed to update user",
+			"error":   err.Error(),
+		})
+	}
+	request.Id = id
+	if err := uc.validator.Struct(request); err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "failed to update user",
+			"error":   err.Error(),
+		})
+	}
+
+	res, err := uc.usecase.UpdateUser(c.Request().Context(), request, false)
+	if err != nil {
+		return c.JSON(res.Status, map[string]any{
+			"message": "failed to update user",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "successfully update user",
+		"data":    res,
+	})
+}
+
+func (uc *UserController) UpdateProfileController(c echo.Context) error {
+	id := c.Get("user").(*config.JwtCustomClaims).Id
+	file, err := c.FormFile("image")
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]any{
+			"message": "failed to update user",
+			"error":   err.Error(),
+		})
+	}
+	request := &model.UpdateUserRequest{Id: id, Profile: file}
+	res, err := uc.usecase.UpdateUser(c.Request().Context(), request, true)
+	if err != nil {
+		return c.JSON(res.Status, map[string]any{
+			"message": "failed to update user",
+			"error":   err.Error(),
+		})
+	}
+
+	return c.JSON(http.StatusOK, map[string]any{
+		"message": "successfully update user profile picture",
 		"data":    res,
 	})
 }
