@@ -4,12 +4,8 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"io"
 	"log/slog"
-	"mime/multipart"
 	"net/http"
-	"os"
-	"path/filepath"
 
 	"github.com/thiccpan/library_information_system/internal/entity"
 	"github.com/thiccpan/library_information_system/internal/model"
@@ -104,7 +100,9 @@ func (uu *UserUsecase) Login(ctx context.Context, request *model.LoginUserReques
 		return nil, err
 	}
 
-	return model.UserToResponse(user), nil
+	res := model.UserToResponse(user)
+	res.RoleId = user.Role_id
+	return res, nil
 }
 
 func (uu *UserUsecase) GetById(ctx context.Context, id uint) (*model.UserResponse, error) {
@@ -195,29 +193,4 @@ func (uu *UserUsecase) UpdateUser(ctx context.Context, request *model.UpdateUser
 	}
 
 	return response, nil
-}
-
-func moveFile(dstLoc string, file *multipart.FileHeader) (string, error) {
-	src, err := file.Open()
-	if err != nil {
-		return "", err
-	}
-	defer src.Close()
-
-	// Destination
-	if err := os.MkdirAll(filepath.Dir(dstLoc), 0770); err != nil {
-		return "", err
-	}
-	dst, err := os.Create(dstLoc)
-	if err != nil {
-		return "", err
-	}
-	defer dst.Close()
-
-	// Copy
-	if _, err = io.Copy(dst, src); err != nil {
-		return "", err
-	}
-
-	return dst.Name(), nil
 }

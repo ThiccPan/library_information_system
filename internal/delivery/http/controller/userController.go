@@ -80,7 +80,7 @@ func (uc *UserController) LoginController(c echo.Context) error {
 		})
 	}
 
-	token, err := uc.jwt.GenerateToken(res.Id, res.Email, res.Name, 1)
+	token, err := uc.jwt.GenerateToken(res.Id, res.Email, res.Name, res.RoleId)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, map[string]any{
 			"message": "failed to login user",
@@ -90,7 +90,7 @@ func (uc *UserController) LoginController(c echo.Context) error {
 	res.Token = token
 
 	return c.JSON(http.StatusOK, map[string]any{
-		"message": "user registered successfully",
+		"message": "user login successfully",
 		"data":    res,
 	})
 }
@@ -120,7 +120,7 @@ func (uc *UserController) GetProfileController(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, map[string]any{
-		"message": "successfully fetch users",
+		"message": "successfully get user profile",
 		"data":    res,
 	})
 }
@@ -129,7 +129,7 @@ func (uc *UserController) GetByIdController(c echo.Context) error {
 	id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, map[string]any{
-			"message": "failed to get user by id",
+			"message": "failed to get user",
 			"error":   err.Error(),
 		})
 	}
@@ -142,7 +142,7 @@ func (uc *UserController) GetByIdController(c echo.Context) error {
 		})
 	}
 	return c.JSON(http.StatusOK, map[string]any{
-		"message": "successfully fetch users",
+		"message": "successfully get user",
 		"data":    res,
 	})
 }

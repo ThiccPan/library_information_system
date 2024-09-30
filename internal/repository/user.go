@@ -41,10 +41,16 @@ func (u *UserRepository) Add(db *gorm.DB, user *entity.User) error {
 
 func (u *UserRepository) UpdateById(db *gorm.DB, user *entity.User) error {
 	tx := db.Model(user).Where("id = ?", user.Id).Updates(user)
+	if tx.RowsAffected < 1 {
+		return gorm.ErrRecordNotFound
+	}
 	return tx.Error
 }
 
 func (u *UserRepository) Delete(db *gorm.DB, user *entity.User) error {
 	tx := db.Delete(user)
+	if tx.RowsAffected < 1 {
+		return gorm.ErrRecordNotFound
+	}
 	return tx.Error
 }

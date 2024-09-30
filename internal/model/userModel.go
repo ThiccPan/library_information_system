@@ -17,6 +17,7 @@ type UserResponse struct {
 	Name       string `json:"name"`
 	ProfileImg string `json:"profile_img"`
 	Token      string `json:"token"`
+	RoleId     uint   `json:"role_id"`
 }
 
 type UsersResponse struct {
@@ -41,10 +42,10 @@ type RegisterUserRequest struct {
 }
 
 type UpdateUserRequest struct {
-	Id       uint `json:"-" validate:"required,max=100"`
-	Email    string `json:"email,omitempty" validate:"omitempty,email"`
-	Password string `json:"password,omitempty" validate:"max=100"`
-	Name     string `json:"name,omitempty" validate:"max=100"`
+	Id       uint                  `json:"-" validate:"required,max=100"`
+	Email    string                `json:"email,omitempty" validate:"omitempty,email"`
+	Password string                `json:"password,omitempty" validate:"max=100"`
+	Name     string                `json:"name,omitempty" validate:"max=100"`
 	Profile  *multipart.FileHeader `json:"-" validate:""`
 }
 
