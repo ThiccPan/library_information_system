@@ -10,7 +10,8 @@ type AppConfig struct {
 	App              *echo.Echo
 	UserController   *controller.UserController
 	AuthorController *controller.AuthorController
-	TopicController *controller.TopicController
+	TopicController  *controller.TopicController
+	BookController  *controller.BookController
 }
 
 func (e *AppConfig) SetupRoute() {
@@ -39,9 +40,16 @@ func (e *AppConfig) SetupRoute() {
 	authorRoute.DELETE("/:id", e.AuthorController.Delete)
 
 	topicRoute := route.Group("/topics")
-	topicRoute.POST("", e.TopicController.Create)
+	topicRoute.POST("", e.TopicController.Create, middleware.JWTUser(), middleware.CheckAdmin())
 	topicRoute.GET("", e.TopicController.Get)
 	topicRoute.GET("/:id", e.TopicController.GetById)
-	topicRoute.POST("/:id", e.TopicController.Update)
-	topicRoute.DELETE("/:id", e.TopicController.Delete)
+	topicRoute.POST("/:id", e.TopicController.Update, middleware.JWTUser(), middleware.CheckAdmin())
+	topicRoute.DELETE("/:id", e.TopicController.Delete, middleware.JWTUser(), middleware.CheckAdmin())
+
+	bookRoute := route.Group("/books")
+	bookRoute.POST("", e.BookController.Create, middleware.JWTUser(), middleware.CheckAdmin())
+	bookRoute.GET("", e.BookController.Get)
+	bookRoute.GET("/:id", e.BookController.GetById)
+	bookRoute.POST("/:id", e.BookController.Update, middleware.JWTUser(), middleware.CheckAdmin())
+	bookRoute.DELETE("/:id", e.BookController.Delete, middleware.JWTUser(), middleware.CheckAdmin())
 }
