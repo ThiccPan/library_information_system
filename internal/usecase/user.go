@@ -147,10 +147,12 @@ func (uu *UserUsecase) ShowAllUsers(ctx context.Context) (*model.UsersResponse, 
 
 func (uu *UserUsecase) UpdateUser(ctx context.Context, request *model.UpdateUserRequest, withProfile bool) (*model.UserResponse, error) {
 	tx := uu.Db.WithContext(ctx).Begin()
-	if r := recover(); r != nil {
-		slog.Info("err exit", r)
-		tx.Rollback()
-	}
+	defer func() {
+		if r := recover(); r != nil {
+			slog.Info("err exit", r)
+			tx.Rollback()
+		}
+	}()
 
 	// add to data store
 	user := &entity.User{
