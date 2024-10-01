@@ -41,6 +41,15 @@ func (u *BookRepository) UpdateById(db *gorm.DB, book *entity.Book) error {
 	return tx.Error
 }
 
+// allowing stock value to be 0
+func (u *BookRepository) UpdateStock(db *gorm.DB, book *entity.Book) error {
+	tx := db.Model(book).Select("Stock").Where("id = ?", book.Id).Updates(book)
+	if tx.RowsAffected < 1 {
+		return gorm.ErrRecordNotFound
+	}
+	return tx.Error
+}
+
 func (u *BookRepository) Delete(db *gorm.DB, book *entity.Book) error {
 	tx := db.Delete(book)
 	if tx.RowsAffected < 1 {
