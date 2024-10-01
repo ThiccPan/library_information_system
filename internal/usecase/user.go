@@ -105,31 +105,45 @@ func (uu *UserUsecase) Login(ctx context.Context, request *model.LoginUserReques
 	return res, nil
 }
 
-func (uu *UserUsecase) GetById(ctx context.Context, id uint) (*model.UserResponse, error) {
+func (uu *UserUsecase) GetById(ctx context.Context, request *model.QueryUserRequest) (*entity.User, *model.Response) {
 	tx := uu.Db.WithContext(ctx).Begin()
 	if r := recover(); r != nil {
 		slog.Info("err exit", r)
 		tx.Rollback()
 	}
-	user := &entity.User{Id: id}
-	if err := uu.Repository.GetById(tx, user); err != nil {
+	user := &entity.User{Id: request.Id}
+	if err := uu.Repository.GetById(tx, user, request.QueryParams); err != nil {
 		tx.Rollback()
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			error_val := errors.New("user not found in record")
 			slog.Error("user not found in record", "error", err.Error())
-			return &model.UserResponse{Status: http.StatusBadRequest, Error: error_val}, error_val
+			return nil, &model.Response{
+				Code:    http.StatusBadRequest,
+				Err:     errors.New("user not found in record"),
+				Message: "failed to get user",
+			}
 		}
 		slog.Error("failed to find user", "error", err.Error())
-		return &model.UserResponse{Status: http.StatusInternalServerError, Error: err}, err
+		return nil, &model.Response{
+			Code:    http.StatusInternalServerError,
+			Err:     err,
+			Message: "failed to get user",
+		}
 	}
 
 	// commit transaction
 	if err := tx.Commit().Error; err != nil {
 		slog.Error("failed to create new user", "error", err.Error())
-		return nil, err
+		return nil, &model.Response{
+			Code:    http.StatusInternalServerError,
+			Err:     err,
+			Message: "failed to get user",
+		}
 	}
 
-	return model.UserToResponse(user), nil
+	return user, &model.Response{
+		Code:    http.StatusOK,
+		Message: "failed to get user",
+	}
 }
 
 func (uu *UserUsecase) ShowAllUsers(ctx context.Context) (*model.UsersResponse, error) {

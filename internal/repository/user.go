@@ -29,8 +29,17 @@ func (u *UserRepository) GetByEmail(db *gorm.DB, user *entity.User) error {
 	return tx.Error
 }
 
-func (u *UserRepository) GetById(db *gorm.DB, user *entity.User) error {
-	tx := db.First(&user)
+func (u *UserRepository) GetById(db *gorm.DB, user *entity.User, cond map[string]any) error {
+	tx := db
+	statusId, ok := cond["status_id"]
+	if ok && statusId != 0 {
+		tx = tx.Preload("Loans", u.Db.Where(&entity.Loan{LoanStatus_id: uint(statusId.(int))}))
+	}
+	if ok && statusId == 0 {
+		tx = tx.Preload("Loans")
+	}
+
+	tx.First(&user)
 	return tx.Error
 }
 

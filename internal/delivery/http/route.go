@@ -30,6 +30,7 @@ func (e *AppConfig) SetupRoute() {
 
 	myRoute := route.Group("/my", middleware.JWTUser())
 	myRoute.GET("", e.UserController.GetProfileController)
+	myRoute.GET("/loans", e.UserController.GetMyLoanHistory)
 	myRoute.POST("", e.UserController.UpdateController)
 	myRoute.POST("/profile", e.UserController.UpdateProfileController)
 	route.Static("/pictures/profiles", "resource/user_profile")

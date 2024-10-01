@@ -35,6 +35,18 @@ func UserToResponse(user *entity.User) *UserResponse {
 	}
 }
 
+type QueryUserRequest struct {
+	Id uint
+	QueryParams map[string]any
+}
+
+func NewQueryReq(id uint, QueryParams map[string]any) *QueryUserRequest {
+	return &QueryUserRequest{
+		Id: id,
+		QueryParams: QueryParams,
+	}
+}
+
 type RegisterUserRequest struct {
 	Email    string `json:"email" validate:"required,email"`
 	Name     string `json:"name" validate:"required,max=100"`

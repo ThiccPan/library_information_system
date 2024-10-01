@@ -142,18 +142,17 @@ func (uc *UserController) GetAllController(c echo.Context) error {
 
 func (uc *UserController) GetProfileController(c echo.Context) error {
 	id := c.Get("user").(*config.JwtCustomClaims).Id
-
-	res, err := uc.usecase.GetById(c.Request().Context(), uint(id))
-	if err != nil {
-		return c.JSON(res.Status, map[string]any{
-			"message": "failed to login user",
-			"error":   err.Error(),
-		})
+	req := &model.QueryUserRequest{Id: uint(id)}
+	res := map[string]any{}
+	user, info := uc.usecase.GetById(c.Request().Context(), req)
+	res["message"] = info.Message
+	if user != nil {
+		res["data"] = user
 	}
-	return c.JSON(http.StatusOK, map[string]any{
-		"message": "successfully get user profile",
-		"data":    res,
-	})
+	if info.Err != nil {
+		res["error"] = info.Err.Error()
+	}
+	return c.JSON(info.Code, res)
 }
 
 func (uc *UserController) GetByIdController(c echo.Context) error {
@@ -164,18 +163,17 @@ func (uc *UserController) GetByIdController(c echo.Context) error {
 			"error":   err.Error(),
 		})
 	}
-
-	res, err := uc.usecase.GetById(c.Request().Context(), uint(id))
-	if err != nil {
-		return c.JSON(res.Status, map[string]any{
-			"message": "failed to login user",
-			"error":   err.Error(),
-		})
+	req := &model.QueryUserRequest{Id: uint(id)}
+	res := map[string]any{}
+	user, info := uc.usecase.GetById(c.Request().Context(), req)
+	res["message"] = info.Message
+	if user != nil {
+		res["data"] = user
 	}
-	return c.JSON(http.StatusOK, map[string]any{
-		"message": "successfully get user",
-		"data":    res,
-	})
+	if info.Err != nil {
+		res["error"] = info.Err.Error()
+	}
+	return c.JSON(info.Code, res)
 }
 
 func (uc *UserController) UpdateController(c echo.Context) error {
@@ -231,4 +229,23 @@ func (uc *UserController) UpdateProfileController(c echo.Context) error {
 		"message": "successfully update user profile picture",
 		"data":    res,
 	})
+}
+
+func (uc *UserController) GetMyLoanHistory(c echo.Context) error {
+	id := c.Get("user").(*config.JwtCustomClaims).Id
+	req := model.NewQueryReq(id, map[string]any{})
+	res := map[string]any{}
+
+	statusParam, _ := strconv.Atoi(c.QueryParam("status"))
+	req.QueryParams["status_id"] = statusParam
+
+	user, info := uc.usecase.GetById(c.Request().Context(), req)
+	res["message"] = info.Message
+	if user != nil {
+		res["data"] = user
+	}
+	if info.Err != nil {
+		res["error"] = info.Err.Error()
+	}
+	return c.JSON(info.Code, res)
 }
