@@ -41,7 +41,7 @@ func (uu *UserUsecase) Register(ctx context.Context, request *model.RegisterUser
 		Email:    request.Email,
 		Name:     request.Name,
 		Password: request.Password,
-		Role_id:  entity.USER.Id,
+		Role_id:  request.RoleId,
 	}
 
 	if err := uu.Repository.Add(tx, user); err != nil {

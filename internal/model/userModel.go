@@ -39,6 +39,7 @@ type RegisterUserRequest struct {
 	Email    string `json:"email" validate:"required,email"`
 	Name     string `json:"name" validate:"required,max=100"`
 	Password string `json:"password" validate:"required,max=100"`
+	RoleId   uint
 }
 
 type UpdateUserRequest struct {

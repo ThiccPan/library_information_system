@@ -21,6 +21,7 @@ func (e *AppConfig) SetupRoute() {
 		return c.JSON(200, map[string]any{"message": "app is online"})
 	})
 	route.POST("/register", e.UserController.RegisterController)
+	route.POST("/register/admin", e.UserController.RegisterAdminController)
 	route.POST("/login", e.UserController.LoginController)
 
 	rRoute := route.Group("/users", middleware.JWTUser(), middleware.CheckAdmin())
