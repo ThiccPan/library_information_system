@@ -66,8 +66,8 @@ func dbAutoMigrate(db *gorm.DB) *gorm.DB {
 func runSeeding(db *gorm.DB) *gorm.DB {
 	// migrate loan status
 	statusMigrationData := []*entity.LoanStatus{
-		{Id: 1, Status: entity.BORROWED},
-		{Id: 2, Status: entity.RETURNED},
+		{Id: uint(entity.BORROWED_CODE), Status: entity.BORROWED},
+		{Id: uint(entity.RETURNED_CODE), Status: entity.RETURNED},
 	}
 	db.Clauses(clause.OnConflict{
 		Columns:   []clause.Column{{Name: "id"}},
