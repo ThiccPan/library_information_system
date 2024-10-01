@@ -11,7 +11,8 @@ type AppConfig struct {
 	UserController   *controller.UserController
 	AuthorController *controller.AuthorController
 	TopicController  *controller.TopicController
-	BookController  *controller.BookController
+	BookController   *controller.BookController
+	LoanController   *controller.LoanController
 }
 
 func (e *AppConfig) SetupRoute() {
@@ -52,4 +53,11 @@ func (e *AppConfig) SetupRoute() {
 	bookRoute.GET("/:id", e.BookController.GetById)
 	bookRoute.POST("/:id", e.BookController.Update, middleware.JWTUser(), middleware.CheckAdmin())
 	bookRoute.DELETE("/:id", e.BookController.Delete, middleware.JWTUser(), middleware.CheckAdmin())
+
+	loanRoute := route.Group("/loans", middleware.JWTUser(), middleware.CheckAdmin())
+	loanRoute.POST("", e.LoanController.Create)
+	loanRoute.GET("", e.LoanController.Get)
+	loanRoute.GET("/:id", e.LoanController.GetById)
+	loanRoute.POST("/:id", e.LoanController.Update)
+	loanRoute.DELETE("/:id", e.LoanController.Delete)
 }

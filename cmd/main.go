@@ -37,12 +37,17 @@ func main() {
 	bookUsecase := usecase.NewBookUsecase(db, bookRepository)
 	bookController := controller.NewBookController(bookUsecase)
 
+	loanRepository := repository.NewLoanRepository(db)
+	loanUsecase := usecase.NewLoanUsecase(db, loanRepository, bookRepository)
+	loanController := controller.NewLoanController(loanUsecase)
+
 	routerConfig := http.AppConfig{
 		App:              app,
 		UserController:   userController,
 		AuthorController: authorController,
 		TopicController:  topicController,
 		BookController:   bookController,
+		LoanController:   loanController,
 	}
 	routerConfig.SetupRoute()
 
