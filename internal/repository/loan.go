@@ -1,6 +1,8 @@
 package repository
 
 import (
+	"fmt"
+
 	"github.com/thiccpan/library_information_system/internal/entity"
 	"github.com/thiccpan/library_information_system/internal/model"
 	"gorm.io/gorm"
@@ -16,9 +18,15 @@ func NewLoanRepository(db *gorm.DB) *LoanRepository {
 	}
 }
 
-func (u *LoanRepository) GetAll(db *gorm.DB, req *model.QueryLoanRequest) ([]entity.Loan, error) {
+func (u *LoanRepository) GetAll(db *gorm.DB, req *model.QueryLoanRequest, cond map[string]any) ([]entity.Loan, error) {
+	tx := db.Joins("Book").Joins("User").Joins("LoanStatus")
 	var loans []entity.Loan
-	tx := db.Joins("Book").Joins("User").Find(&loans)
+	statusId, ok := cond["status_id"].(uint)
+	if ok && statusId != 0 {
+		fmt.Println(statusId)
+		tx = tx.Where("loan_status_id = ?", statusId)
+	}
+	tx = tx.Find(&loans)
 	if err := tx.Error; err != nil {
 		return loans, err
 	}

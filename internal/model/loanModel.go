@@ -13,6 +13,5 @@ type CommandLoanRequest struct {
 type QueryLoanRequest struct {
 	Id          uint
 	Search      string
-	QueryBookId uint
-	QueryUserId uint
+	QueryParams map[string]any
 }

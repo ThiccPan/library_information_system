@@ -40,7 +40,10 @@ func (lc *LoanController) Create(c echo.Context) error {
 
 func (lc *LoanController) Get(c echo.Context) error {
 	res := map[string]any{}
-	req := &model.QueryLoanRequest{}
+	statusQuery, _ := strconv.Atoi(c.QueryParam("status"))
+	req := &model.QueryLoanRequest{
+		QueryParams: map[string]any{"status_id": uint(statusQuery)},
+	}
 	loans, info := lc.usecase.Get(c.Request().Context(), req)
 	res["message"] = info.Message
 	if loans != nil {
@@ -60,7 +63,8 @@ func (lc *LoanController) GetById(c echo.Context) error {
 		res["error"] = err.Error()
 		return c.JSON(http.StatusBadRequest, res)
 	}
-	req := &model.QueryLoanRequest{Id: uint(id)}
+	c.QueryParam("status")
+	req := &model.QueryLoanRequest{Id: uint(id), QueryParams: map[string]any{}}
 	loan, info := lc.usecase.GetById(c.Request().Context(), req)
 	if info.Err != nil {
 		res["message"] = "failed to get loan"

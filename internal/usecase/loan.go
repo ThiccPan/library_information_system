@@ -71,7 +71,7 @@ func (lu *LoanUsecase) Add(c context.Context, req *model.CommandLoanRequest) (*e
 
 func (lu *LoanUsecase) Get(c context.Context, req *model.QueryLoanRequest) ([]entity.Loan, *model.Response) {
 	tx := lu.db.WithContext(c)
-	loans, err := lu.repository.GetAll(tx, req)
+	loans, err := lu.repository.GetAll(tx, req, req.QueryParams)
 	if err != nil {
 		return nil, &model.Response{Code: http.StatusInternalServerError, Err: err, Message: "failed to get loans"}
 	}
