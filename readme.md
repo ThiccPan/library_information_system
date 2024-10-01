@@ -26,11 +26,7 @@ JWT_SECRET=secret
 ```bash
 docker-compose up -d --build
 ```
-5. configure your application key
-```bash
-docker exec warehouse_system php artisan key:generate
-```
-6. done! you can start hitting the application api
+5. done! you can start hitting the application api
 
 Documentation:
 - API documentation: [postman link](https://documenter.getpostman.com/view/23637484/2sAXxJgu76)
